@@ -7,32 +7,6 @@ from COD_MBR import CODBasedMBR
 from COD_AnaerobicDigester import CODAnaerobicDigester
 
 
-# -------------------
-# Reporting utilities
-# -------------------
-
-# def print_stream_summary(stream, label: str):
-#     print(f"\n--- {label} ---")
-#     print(f"ID: {stream.ID}")
-
-#     # Total mass flow. Converting to kg/hr from gram/hr
-#     ""
-#     "We access the F_mass attribute of stream. But it's not always guaranteed in QSDsan so we do try/except."
-#     ""
-#     try:
-#         print(f"Total mass flow: {stream.F_mass / 1000:.6g} kg/hr")
-#     except Exception:
-#         pass
-
-#     # Common wastewater indicators (skip silently if unavailable).
-#     ""
-#     "With try/except we try the common components from a stream"
-#     ""
-#     for attr in ("COD", "TN", "TP", "TSS"):
-#         try:
-#             print(f"{attr}: {getattr(stream, attr):.6g} mg/L")
-#         except Exception:
-#             continue
 def print_stream_summary(stream, label: str, nonzero_only: bool = True, tol: float = 1e-12):
     print(f"\n--- {label} ---")
     print(f"ID: {stream.ID}")
@@ -64,42 +38,20 @@ def print_stream_summary(stream, label: str, nonzero_only: bool = True, tol: flo
                 continue
 
     # Component mass rates
+    
     print("Component mass rates (g/hr):")
-    try:
-        ids = stream.components.IDs
-        printed_any = False
-        for cid in ids:
-            m = float(stream.imass[cid])  # g/hr
-            if nonzero_only and abs(m) <= tol:
-                continue
-            print(f"  {cid}: {m:.6g}")
-            printed_any = True
-
-        if nonzero_only and not printed_any:
-            print("  (all components are ~0 within tolerance)")
-    except Exception as e:
-        print(f"  (Could not list components: {e})")
-
-    # Selected component mass rates
-    ""
-    "These are the components we would like to track in a stream therefore we print them. They are custom defined in components.py."
-    ""
-    components_to_show = (
-        "X_B_Subst", "S_F", "S_NH4", "S_PO4", "S_K", "S_SO4",
-        "Diclo", "Meto", "Sulfa", "Benzo", "Iome",
-    )
-
-    printed_header = False
-    for cid in components_to_show:
+    printed_any = False
+    for cid in stream.components.IDs:
         try:
-            mass = stream.imass[cid]    # g/hr
-            if mass != 0:  # currently removing 0 value components, this can be removed.
-                if not printed_header:
-                    print("Component mass rates (g/hr):")
-                    printed_header = True
+            mass = float(stream.imass[cid])  # g/hr
+            if abs(mass) > 1e-12:
                 print(f"  {cid}: {mass:.6g}")
+                printed_any = True
         except Exception:
             continue
+
+    if not printed_any:
+        print("  (all components ~0)")
 
 
 ""
