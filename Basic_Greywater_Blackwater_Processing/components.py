@@ -50,6 +50,25 @@ def build_cmps():
             organic=organic,
         )
         cmps.append(cmp)
+    
+    """
+    Append a real chemical component in the gas phase (e.g., CH4, CO2) so anaerobic digestion can output
+    a chemically meaningful biogas stream.
+    """
+
+    def append_gas_chemical(ID: str, search_ID: str, organic: bool):
+     
+        if exists(ID):
+            return
+        cmp = qs.Component.from_chemical(
+            ID=ID,
+            search_ID=search_ID,
+            phase="g",
+            particle_size="dissolved",  # placeholder; gas phase dominates
+            degradability="U",
+            organic=organic,
+        )
+        cmps.append(cmp)
 
     append_component("S_SO4", organic=False)
     append_component("Diclo", organic=False)
@@ -58,6 +77,10 @@ def build_cmps():
     append_component("Benzo", organic=False)
     append_component("Iome",  organic=False)
 
-    # we run some check skips so compile runs without issues
+    append_gas_chemical("CH4", "CH4", organic=True)
+    append_gas_chemical("CO2", "CO2", organic=False)
+
+    # Compile component set
     cmps.compile(skip_checks=True, ignore_inaccurate_molar_weight=True)
+
     return cmps

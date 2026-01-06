@@ -1,38 +1,84 @@
 import qsdsan as qs
 
 from components import build_cmps
-from Greywater.BlackwaterBuild import make_blackwater
+from BlackwaterBuild import make_blackwater
 from GreywaterBuild import make_greywater
 from COD_MBR import CODBasedMBR
-from Greywater.COD_AnaerobicDigester import CODAnaerobicDigester
+from COD_AnaerobicDigester import CODAnaerobicDigester
 
 
 # -------------------
 # Reporting utilities
 # -------------------
 
-def print_stream_summary(stream, label: str):
+# def print_stream_summary(stream, label: str):
+#     print(f"\n--- {label} ---")
+#     print(f"ID: {stream.ID}")
+
+#     # Total mass flow. Converting to kg/hr from gram/hr
+#     ""
+#     "We access the F_mass attribute of stream. But it's not always guaranteed in QSDsan so we do try/except."
+#     ""
+#     try:
+#         print(f"Total mass flow: {stream.F_mass / 1000:.6g} kg/hr")
+#     except Exception:
+#         pass
+
+#     # Common wastewater indicators (skip silently if unavailable).
+#     ""
+#     "With try/except we try the common components from a stream"
+#     ""
+#     for attr in ("COD", "TN", "TP", "TSS"):
+#         try:
+#             print(f"{attr}: {getattr(stream, attr):.6g} mg/L")
+#         except Exception:
+#             continue
+def print_stream_summary(stream, label: str, nonzero_only: bool = True, tol: float = 1e-12):
     print(f"\n--- {label} ---")
     print(f"ID: {stream.ID}")
 
-    # Total mass flow. Converting to kg/hr from gram/hr
-    ""
-    "We access the F_mass attribute of stream. But it's not always guaranteed in QSDsan so we do try/except."
-    ""
+    # Total mass flow
+    """
+    We access the F_mass attribute of stream. But it's not always guaranteed in QSDsan so we do try/except."
+   """
     try:
         print(f"Total mass flow: {stream.F_mass / 1000:.6g} kg/hr")
     except Exception:
         pass
 
-    # Common wastewater indicators (skip silently if unavailable).
-    ""
-    "With try/except we try the common components from a stream"
-    ""
-    for attr in ("COD", "TN", "TP", "TSS"):
-        try:
-            print(f"{attr}: {getattr(stream, attr):.6g} mg/L")
-        except Exception:
-            continue
+    # Phase (useful now that we have gas streams)
+    try:
+        print(f"Phase: {stream.phase}")
+    except Exception:
+        pass
+
+    """
+    With try/except we try the common components from a stream
+    """
+    # Concentration metrics (only meaningful for liquids)
+    if getattr(stream, "phase", None) != "g":
+        for attr in ("COD", "TN", "TP", "TSS"):
+            try:
+                print(f"{attr}: {getattr(stream, attr):.6g} mg/L")
+            except Exception:
+                continue
+
+    # Component mass rates
+    print("Component mass rates (g/hr):")
+    try:
+        ids = stream.components.IDs
+        printed_any = False
+        for cid in ids:
+            m = float(stream.imass[cid])  # g/hr
+            if nonzero_only and abs(m) <= tol:
+                continue
+            print(f"  {cid}: {m:.6g}")
+            printed_any = True
+
+        if nonzero_only and not printed_any:
+            print("  (all components are ~0 within tolerance)")
+    except Exception as e:
+        print(f"  (Could not list components: {e})")
 
     # Selected component mass rates
     ""
@@ -158,7 +204,7 @@ if __name__ == "__main__":
         print_stream_summary(mbr_sludge, "MBR Sludge")
 
     print_stream_summary(digestate, "AD Digestate")
-    print_stream_summary(biogas, "AD Biogas (proxy stream)")
+    print_stream_summary(biogas, "AD Biogas")
 
     # 4) Removal performance (per-train)
     for metric in ("COD", "TN", "TP", "TSS"):
@@ -171,14 +217,3 @@ if __name__ == "__main__":
         if r is not None:
             print(f"\n[Blackwater→AD] {metric} removal: {r:.2f}%")
 
-    # # 3) Outputs
-    # effluent, sludge = system.outs
-
-    # print_stream_summary(effluent, "MBR Effluent")
-    # print_stream_summary(sludge, "MBR Sludge")
-
-    # # 4) Removal performance
-    # for metric in ("COD", "TN", "TP", "TSS"):
-    #     r = percent_removal(greywater, effluent, metric)
-    #     if r is not None:
-    #         print(f"\n{metric} removal: {r:.2f}%")
