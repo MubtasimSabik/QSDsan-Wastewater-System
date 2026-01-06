@@ -47,11 +47,11 @@ def make_greywater(population):
     Iome_g_h = gph(Iome_g_cap_d),
 
     # COD split - Controllable, here 70/30
-    COD_X = 0.7 * COD_g_h # This represents the particulate biodegradable COD, later noted as X_B_Subst
-    COD_S = 0.3 * COD_g_h # This represents the soluable biodegradable COD later noted as S_F
+    COD_X = 0.7 * COD_g_h   # This represents the particulate biodegradable COD, later noted as X_B_Subst
+    COD_S = 0.3 * COD_g_h   # This represents the soluable biodegradable COD later noted as S_F
 
     # water mass in g/hr
-    H2O_g_h = Q_m3_h * 1e6 # 1 m³ = 1000 × 1000 = 1,000,000 g = 1e6 g
+    H2O_g_h = Q_m3_h * 1e6  # 1 m³ = 1000 × 1000 = 1,000,000 g = 1e6 g
 
     return qs.WasteStream(
         ID="Greywater",
