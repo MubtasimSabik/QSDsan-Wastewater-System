@@ -6,4 +6,7 @@ GreywaterBuild.py - Creating the greywater stream based on the custom list of co
 
 COD_MBR.py - A custom COD based MBR system. 
 
-mainSystem.py - Main function. The process is Influent (Greywater) -> MBR -> MBR Effluent + MBR Sludge
+mainSystem.py - Main function. The process is Influent (Greywater + Blackwater) 
+
+Greywater -> MBR -> MBR Effluent + MBR Sludge
+Blackwater -> Anaerobic Digester -> Digestate + Biogas
