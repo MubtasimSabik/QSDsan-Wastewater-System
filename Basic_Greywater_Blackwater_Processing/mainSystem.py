@@ -1,8 +1,10 @@
 import qsdsan as qs
 
-from components import build_cmps_greywater
+from components import build_cmps
+from Greywater.BlackwaterBuild import make_blackwater
 from GreywaterBuild import make_greywater
 from COD_MBR import CODBasedMBR
+from Greywater.COD_AnaerobicDigester import CODAnaerobicDigester
 
 
 # -------------------
@@ -80,9 +82,13 @@ def percent_removal(influent, effluent, attr):
 
 def build_system(population: float):
 
-    # calls the GreywaterBuild.py file based on defined population number.
+    
+    # Create influent streams
 
-    gw = make_greywater(population)
+    gw = make_greywater(population)     # calls the GreywaterBuild.py file based on defined population number.
+    bw = make_blackwater(population)  # calls the BlackwaterBuild.py file based on defined population number.
+
+    # Units
 
     mbr = CODBasedMBR(
         ID="U_MBR",
@@ -97,8 +103,17 @@ def build_system(population: float):
         # We can edit these.
     )
 
-    sys = qs.System("GW_to_MBR", path=(mbr,))
-    return sys, gw
+    ad = CODAnaerobicDigester(
+        ID="U_AD",
+        ins=bw,
+        outs=("digestate", "biogas"),
+        COD_removal=0.60,
+        # We can edit these.
+    )
+
+    sys = qs.System("Household_System", path=(mbr, ad))
+    return sys, gw, bw, mbr, ad
+
 
 # --------------
 # Main execution
@@ -117,26 +132,53 @@ if __name__ == "__main__":
     Every stream from now on uses this component set..
     """
 
-    components = build_cmps_greywater()
+    components = build_cmps()
     qs.set_thermo(components)
 
     # 2) Build + simulate system
     population = 10000  # We control population here..
-    system, greywater = build_system(population)
+    system, greywater, blackwater, mbr, ad = build_system(population)
 
     print(f"\nRunning simulation for population of {population}.")
 
     print_stream_summary(greywater, "Influent Greywater (pre-simulation)")
+    print_stream_summary(blackwater, "Influent Blackwater (pre-simulation)")
+
     system.simulate()
 
-    # 3) Outputs
-    effluent, sludge = system.outs
+    # 3) Outputs (read from units, not system.outs)
+    mbr_effluent = mbr.outs[0]
+    mbr_sludge = mbr.outs[1] if len(mbr.outs) > 1 else None
 
-    print_stream_summary(effluent, "MBR Effluent")
-    print_stream_summary(sludge, "MBR Sludge")
+    digestate = ad.outs[0]
+    biogas = ad.outs[1]
 
-    # 4) Removal performance
+    print_stream_summary(mbr_effluent, "MBR Effluent")
+    if mbr_sludge is not None:
+        print_stream_summary(mbr_sludge, "MBR Sludge")
+
+    print_stream_summary(digestate, "AD Digestate")
+    print_stream_summary(biogas, "AD Biogas (proxy stream)")
+
+    # 4) Removal performance (per-train)
     for metric in ("COD", "TN", "TP", "TSS"):
-        r = percent_removal(greywater, effluent, metric)
+        r = percent_removal(greywater, mbr_effluent, metric)
         if r is not None:
-            print(f"\n{metric} removal: {r:.2f}%")
+            print(f"\n[Greywater→MBR] {metric} removal: {r:.2f}%")
+
+    for metric in ("COD", "TN", "TP", "TSS"):
+        r = percent_removal(blackwater, digestate, metric)
+        if r is not None:
+            print(f"\n[Blackwater→AD] {metric} removal: {r:.2f}%")
+
+    # # 3) Outputs
+    # effluent, sludge = system.outs
+
+    # print_stream_summary(effluent, "MBR Effluent")
+    # print_stream_summary(sludge, "MBR Sludge")
+
+    # # 4) Removal performance
+    # for metric in ("COD", "TN", "TP", "TSS"):
+    #     r = percent_removal(greywater, effluent, metric)
+    #     if r is not None:
+    #         print(f"\n{metric} removal: {r:.2f}%")

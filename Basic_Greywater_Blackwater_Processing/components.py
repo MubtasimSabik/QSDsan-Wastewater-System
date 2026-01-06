@@ -7,7 +7,7 @@ As a fail safe to uncompile, we convert the variable base into a list.
 """
 
 
-def build_cmps_greywater():
+def build_cmps():
     # we load the default components library in a variable
     base = qs.Components.load_default()
 

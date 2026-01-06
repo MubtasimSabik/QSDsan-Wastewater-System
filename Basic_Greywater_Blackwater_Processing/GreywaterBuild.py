@@ -40,11 +40,11 @@ def make_greywater(population):
     K_g_h = gph(Kgw_g_cap_d)
     S_g_h = gph(Sgw_g_cap_d)
 
-    Diclo_g_h = gph(Diclo_g_cap_d),
-    Meto_g_h = gph(Meto_g_cap_d),
-    Sulfa_g_h = gph(Sulfa_g_cap_d),
-    Benzo_g_h = gph(Benzo_g_cap_d),
-    Iome_g_h = gph(Iome_g_cap_d),
+    Diclo_g_h = gph(Diclo_g_cap_d)
+    Meto_g_h = gph(Meto_g_cap_d)
+    Sulfa_g_h = gph(Sulfa_g_cap_d)
+    Benzo_g_h = gph(Benzo_g_cap_d)
+    Iome_g_h = gph(Iome_g_cap_d)
 
     # COD split - Controllable, here 70/30
     COD_X = 0.7 * COD_g_h   # This represents the particulate biodegradable COD, later noted as X_B_Subst
