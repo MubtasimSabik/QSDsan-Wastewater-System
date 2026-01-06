@@ -8,5 +8,5 @@ COD_MBR.py - A custom COD based MBR system.
 
 mainSystem.py - Main function. The process is Influent (Greywater + Blackwater) 
 
-Greywater -> MBR -> MBR Effluent + MBR Sludge
+Greywater -> MBR -> MBR Effluent + MBR Sludge ,
 Blackwater -> Anaerobic Digester -> Digestate + Biogas
