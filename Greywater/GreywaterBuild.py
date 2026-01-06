@@ -24,7 +24,7 @@ def make_greywater(population):
 
     # ---- Conversions ----
     """
-    We convert per-capita-per-day inputs into population-scaled hourly flows, expressed as either m³/hr (for water) or g/hr (for pollutants).
+    We convert per-capita-per-day inputs into population-scaled hourly flows, expressed as either m³/hr (for water) or g/hr (for components).
     QSDsan systems are solved on a continuous time-rate basis, not as daily totals.
     Everything in the system must be expressed as a flow rate, not a batch amount.
     """
