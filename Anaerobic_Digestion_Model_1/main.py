@@ -39,10 +39,14 @@ HRT (Hydraulic Retention Time) controls how long the sludge stays in the reactor
 - Typical mesophilic HRT: 15–30 d for municipal sludge; 5 d is used here as a tutorial case
 """
 
-Q = 170           # influent flowrate [m3/d]
+# influent flowrate [m3/d]
+Q = 170
+
 # operating temperature [K] — 35°C is the mesophilic optimum for methanogens
 Temp = 273.15 + 35
-HRT = 5            # hydraulic retention time [d] — reactor volume = Q × HRT
+
+# hydraulic retention time [d] — reactor volume = Q × HRT
+HRT = 5
 
 # to be used in Step 4
 
