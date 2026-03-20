@@ -24,12 +24,11 @@
 from visualization import plot_results
 from simulation import run_simulation
 from initialization import load_initial_conditions
+# from initialization_startup import apply_startup_conditions  # alternative: cold start
 from system_setup import create_system
 from streams_and_components import create_components, create_streams
 import warnings
 warnings.filterwarnings('ignore')
-
-# from initialization_startup import apply_startup_conditions  # alternative: cold start
 
 
 # ============================================================================
