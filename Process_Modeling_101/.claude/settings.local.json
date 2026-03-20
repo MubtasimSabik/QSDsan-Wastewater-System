@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(E:/Python310/python.exe main.py)",
+      "Bash(python main.py)"
+    ]
+  }
+}
