@@ -21,15 +21,15 @@
 6. Calls plot_results() to visualise concentration time series for key state variables
 """
 
+from visualization import plot_results
+from simulation import run_simulation
+from initialization import load_initial_conditions
+from system_setup import create_system
+from streams_and_components import create_components, create_streams
 import warnings
 warnings.filterwarnings('ignore')
 
-from streams_and_components import create_components, create_streams
-from system_setup import create_system
-from initialization import load_initial_conditions
 # from initialization_startup import apply_startup_conditions  # alternative: cold start
-from simulation import run_simulation
-from visualization import plot_results
 
 
 # ============================================================================
@@ -87,7 +87,8 @@ def main():
     create_components()
 
     # Step 2: create influent, effluent, recycle, and wastage streams; set influent composition
-    influent, effluent, int_recycle, ext_recycle, wastage = create_streams(Q_inf, Q_was, Q_ext, Temp)
+    influent, effluent, int_recycle, ext_recycle, wastage = create_streams(
+        Q_inf, Q_was, Q_ext, Temp)
 
     # Step 3: build the 5 bioreactors and secondary clarifier, assemble into a System
     sys, A1, A2, O1, O2, O3, C1 = create_system(
@@ -95,8 +96,10 @@ def main():
         V_an, V_ae, Q_ext, Q_was
     )
 
-    # Step 4: apply near-steady-state initial conditions from Excel file
+    # Step 4a: apply near-steady-state initial conditions from Excel file
     load_initial_conditions(sys)
+
+    # Step 4b: alternative — apply cold-start conditions (uncomment to use)
     # apply_startup_conditions(sys)  # uncomment for cold-start simulation
 
     # Step 5: integrate ASM2d ODEs over time and compute SRT
